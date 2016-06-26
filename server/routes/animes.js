@@ -1,4 +1,6 @@
 var mongo = require('mongodb');
+var mongoose = require('mongoose');
+
 var monk = require('monk');
 
 var Server = mongo.Server,
