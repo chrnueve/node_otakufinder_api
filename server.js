@@ -1,10 +1,11 @@
 // Get the packages we need
 var express = require('express');
 var mongoose = require('mongoose');
+var mongodb = require("mongodb");
 var bodyParser = require('body-parser');
 var Anime = require('./app/models/anime');
 // connect to the anime mongoDB
-mongoose.connect(process.env.MONGOLAB_URI);
+// mongoose.connect(process.env.MONGOLAB_URI);
 
 // Create our Express application
 var app = express();
@@ -20,6 +21,26 @@ var AnimesRoute = router.route('/animes/:anime_id');
 
 // Use environment defined port or 3000
 var port = process.env.PORT || 3000;
+
+var db;
+
+// Connect to the database before starting the application server.
+mongodb.MongoClient.connect(process.env.MONGOLAB_URI, function (err, database) {
+  if (err) {
+    console.log(err);
+    process.exit(1);
+  }
+
+  // Save database object from the callback for reuse.
+  db = database;
+  console.log("Database connection ready");
+
+  // Initialize the app.
+  var server = app.listen(process.env.PORT || 8080, function () {
+    var port = server.address().port;
+    console.log("App now running on port", port);
+  });
+});
 
 // Create our Express router
 
@@ -92,7 +113,3 @@ router.get('/', function(req, res) {
 
 // Register all our routes with /api
 app.use('/api', router);
-
-// Start the server
-app.listen(port);
-console.log('Insert anime on port ' + port);
