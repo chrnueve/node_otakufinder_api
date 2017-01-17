@@ -1,51 +1,98 @@
+// Get the packages we need
 var express = require('express');
-var path = require('path');
-var logger = require('morgan');
+var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
-var mongo = require('mongodb');
-var monk = require('monk');
-var db = monk('localhost:27017/animes');
+var Anime = require('./app/models/anime');
+// connect to the anime mongoDB
+mongoose.connect(process.env.MONGOLAB_URI);
 
+// Create our Express application
 var app = express();
 
-app.use(logger('dev'));
-app.use(bodyParser.json());
+// Use the body-parser package in our application
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
+var router = express.Router();
 
-app.all('/*', function(req, res, next) {
-  // CORS headers
-  res.header("Access-Control-Allow-Origin", "*"); // restrict it to the required domain
-  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-  // Set custom headers for CORS
-  res.header('Access-Control-Allow-Headers', 'Content-type,Accept,X-Access-Token,X-Key');
-  if (req.method == 'OPTIONS') {
-    res.status(200).end();
-  } else {
-    next();
-  }
+// Create a new route with the prefix /animes
+var AnimesRoute = router.route('/animes/:anime_id');
+
+// Use environment defined port or 3000
+var port = process.env.PORT || 3000;
+
+// Create our Express router
+
+// Create endpoint /api/animes for POSTS
+AnimesRoute.post(function(req, res) {
+  // Create a new instance of the Anime model
+  var anime = new Anime();
+
+  // Set the anime properties that came from the POST data
+  anime.title = req.body.title;
+  anime.description = req.body.description;
+  anime.url = req.body.url;
+
+  // Save the anime and check for errors
+  anime.save(function(err) {
+    if (err)
+      res.send(err);
+
+    res.json({ message: 'anime added to the locker!', data: anime });
+  });
 });
 
-// Auth Middleware - This will check if the token is valid
-// Only the requests that start with /api/v1/* will be checked for the token.
-// Any URL's that do not follow the below pattern should be avoided unless you
-// are sure that authentication is not needed
-app.all('/api/v1/*', [require('./middlewares/validateRequest')]);
-// Make our db accessible to our router
-app.use(function(req,res,next){
-    req.db = db;
-    next();
-});
-app.use('/', require('./routes'));
+// Create endpoint /api/animes for GET
+AnimesRoute.get(function(req, res) {
+  // Use the Beer model to find all beer
+  Anime.find(function(err, animes) {
+    if (err)
+      res.send(err);
 
-// If no route is matched by now, it must be a 404
-app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
+    res.json(animes);
+  });
 });
+
+// Create endpoint /api/animes/:anime_id for PUT
+AnimesRoute.put(function(req, res) {
+  // Use the Beer model to find a specific beer
+  Anime.findById(req.params.anime_id, function(err, anime) {
+    if (err)
+      res.send(err);
+
+    // Update the existing anime url
+    anime.description = req.body.description;
+    anime.url = req.body.url;
+
+    // Save the beer and check for errors
+    anime.save(function(err) {
+      if (err)
+        res.send(err);
+
+      res.json(anime);
+    });
+  });
+});
+
+// Create endpoint /api/animes/:anime_id for DELETE
+AnimesRoute.delete(function(req, res) {
+  // Use the Anime model to find a specific anime and remove it
+  Anime.findByIdAndRemove(req.params.anime_id, function(err) {
+    if (err)
+      res.send(err);
+
+    res.json({ message: 'Anime removed' });
+  });
+});
+// Initial dummy route for testing
+// http://localhost:3000/api
+router.get('/', function(req, res) {
+  res.json({ message: 'You are running dangerously low on anime!' });
+});
+
+// Register all our routes with /api
+app.use('/api', router);
 
 // Start the server
-app.set('port', process.env.PORT || 3000);
-
-var server = app.listen(app.get('port'), function() {
-  console.log('Express server listening on port ' + server.address().port);
-});
+app.listen(port);
+console.log('Insert anime on port ' + port);
