@@ -6,6 +6,7 @@ var passport = require('passport');
 var authController = require('./controllers/auth');
 var animeController = require('./controllers/anime');
 var userController = require('./controllers/user');
+var favoriteController = require('./controllers/favorite');
 
 // connect to the anime mongoDB
 mongoose.connect(process.env.MONGOLAB_URI);
@@ -33,15 +34,25 @@ router.route('/animes')
   .get(authController.isAuthenticated, animeController.getAnimes);
 
 // Create endpoint handlers for /animes/:anime_id
-router.route('/animes/:beer_id')
+router.route('/animes/:anime_id')
   .get(authController.isAuthenticated, animeController.getAnime)
   .put(authController.isAuthenticated, animeController.putAnime)
   .delete(authController.isAuthenticated, animeController.deleteAnime);
 
+// Create endpoint handler for /favorite
+router.route('/favorites')
+  .get(authController.isAuthenticated, favoriteController.getFavorites)
+  .post(authController.isAuthenticated, favoriteController.postFavorites);
+
+// Create endpoint handler for /favorites/:favorite_id
+router.route('/favorites/:favorite_id')
+  .delete(authController.isAuthenticated, favoriteController.deleteFavorite);
+
+
 // Create endpoint handlers for /users
-  router.route('/users')
-    .post(userController.postUsers)
-    .get(userController.getUsers);
+router.route('/users')
+  .post(userController.postUsers)
+  .get(userController.getUsers);
 // Register all our routes with /api
 
 app.use('/api', router);
