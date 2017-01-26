@@ -33,6 +33,9 @@ router.route('/animes')
   .post(authController.isAuthenticated, animeController.postAnimes)
   .get(authController.isAuthenticated, animeController.getAnimes);
 
+router.route('/animes/scrape')
+  .get(animeController.scrape);
+
 // Create endpoint handlers for /animes/:anime_id
 router.route('/animes/:anime_id')
   .get(authController.isAuthenticated, animeController.getAnime)

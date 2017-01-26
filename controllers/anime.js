@@ -1,5 +1,7 @@
 // Load required packages
 var Anime = require('../app/models/anime');
+var request = require('request');
+var cheerio = require('cheerio');
 
 // Create endpoint /api/animes for POSTS
 exports.postAnimes = function(req, res) {
@@ -72,3 +74,44 @@ exports.deleteAnime = function(req, res) {
     res.json({ message: 'Anime removed.' });
   });
 };
+
+exports.scrape = function(req, res) {
+  url = 'http://myanimelist.net/watch/promotion/popular'
+  request(url, function(error, response, html){
+    //
+    // First we'll check to make sure no errors
+    // occurred when making the request
+    if(!error){
+      // Next, we'll utilize the cheerio library on the returned html which will essentially give us jQuery functionality
+      trailers = []
+      titles   = []
+      var $ = cheerio.load(html);
+
+      // import Anime titles
+      $('.video-info-title').each(function(i, elem) {
+        titles[i] = $(this).find('.mr4').text();
+      });
+
+      // import Anime video urls
+      $('.po-r').each(function(i, elem) {
+        trailers[i] = $(this).prop('href');
+      })
+      // combine info to create an Anime object
+      for(var i = 0; i < titles.length ; i++) {
+        var anime = new Anime();
+        // Set the anime properties
+        anime.title = titles[i];
+        anime.url = trailers[i];
+        anime.save();
+     }
+    }
+    // end of scraping
+  });
+  // respond with new animes
+  Anime.find(function(err, animes) {
+    if (err)
+      res.send(err);
+
+    res.json(animes);
+  });
+}
