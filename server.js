@@ -33,8 +33,8 @@ var router = express.Router();
 // Create endpoint handlers for /animes
 router.route('/animes')
   .post(authController.isAuthenticated, animeController.postAnimes)
-  .get(authController.isAuthenticated, animeController.getAnimes);
-
+  .get(animeController.getAnimes);
+// remove authController.isAuthenticated for testing
 router.route('/animes/scrape')
   .get(animeController.scrape);
 
