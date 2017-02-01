@@ -12,6 +12,7 @@ exports.postAnimes = function(req, res) {
   anime.title = req.body.title;
   anime.description = req.body.description;
   anime.url = req.body.url;
+  anime.picture = req.body.picture;
 
   // Save the anime and check for errors
   anime.save(function(err) {
@@ -53,7 +54,7 @@ exports.putAnime = function(req, res) {
 
     // Update the existing anime url
     anime.url = req.body.url;
-
+    anime.picture = req.body.picture;
     // Save the anime and check for errors
     anime.save(function(err) {
       if (err)
@@ -85,6 +86,7 @@ exports.scrape = function(req, res) {
       // Next, we'll utilize the cheerio library on the returned html which will essentially give us jQuery functionality
       trailers = []
       titles   = []
+      pictures = []
       var $ = cheerio.load(html);
 
       // import Anime titles
@@ -92,9 +94,10 @@ exports.scrape = function(req, res) {
         titles[i] = $(this).find('.mr4').text();
       });
 
-      // import Anime video urls
+      // import Anime video urls and pictures
       $('.po-r').each(function(i, elem) {
         trailers[i] = $(this).prop('href');
+        pictures[i] = $(this).data('bg');
       })
       // combine info to create an Anime object
       for(var i = 0; i < titles.length ; i++) {
@@ -102,6 +105,7 @@ exports.scrape = function(req, res) {
         // Set the anime properties
         anime.title = titles[i];
         anime.url = trailers[i];
+        anime.picture = pictures[i];
         anime.save();
      }
     }
