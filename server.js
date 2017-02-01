@@ -9,8 +9,8 @@ var userController = require('./controllers/user');
 var favoriteController = require('./controllers/favorite');
 
 // connect to the anime mongoDB
-//db = process.env.MONGOLAB_URI || "mongodb://localhost:27017/ANIME_DB"
-db = "mongodb://localhost:27017/ANIME_DB"
+db = process.env.MONGOLAB_URI || "mongodb://localhost:27017/ANIME_DB"
+
 mongoose.connect(db);
 // Create our Express application
 var app = express();
