@@ -65,3 +65,5 @@ app.use('/api', router);
 // Start the server
 app.listen(port);
 console.log('Insert anime on port ' + port);
+
+module.exports = app

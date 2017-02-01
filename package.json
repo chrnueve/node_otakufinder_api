@@ -4,7 +4,7 @@
   "description": "Api for the otakufinder mobile apps",
   "main": "server.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha --reporter spec"
+    "test": "mocha --timeout 10000"
   },
   "author": "Julissa E Cotillo",
   "license": "ISC",
@@ -12,15 +12,16 @@
     "assert": "^1.4.1",
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.15.2",
-    "chai": "^3.5.0",
     "cheerio": "^0.22.0",
     "express": "~4.1.1",
-    "mocha": "^3.2.0",
     "mongodb": "^2.1.6",
     "mongoose": "^4.7.7",
     "passport": "^0.3.2",
-    "passport-http": "^0.3.0",
-    "should": "^11.1.2",
-    "supertest": "^2.0.1"
+    "passport-http": "^0.3.0"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0",
+    "chai-http": "^3.0.0"
   }
 }
